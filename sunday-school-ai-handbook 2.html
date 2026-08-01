@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الذكاء الاصطناعي في خدمة مدارس الأحد</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF3E6;
+    --paper-alt:#F1E7D2;
+    --card:#FFFDF8;
+    --ink:#2A2118;
+    --ink-soft:#6E6151;
+    --ink-faint:#9C9080;
+    --navy:#1F3A52;
+    --navy-deep:#132635;
+    --gold:#B9832A;
+    --gold-light:#E7C173;
+    --gold-pale:#F3E3BE;
+    --teal:#2F6E63;
+    --teal-pale:#E3F0EC;
+    --coral:#B0522E;
+    --coral-pale:#F4E4DB;
+    --line:#E2D3B2;
+    --shadow: 0 10px 30px -12px rgba(20,30,40,.18);
+    --radius: 14px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Cairo', sans-serif;
+    line-height:1.9;
+    -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+  }
+
+  h1,h2,h3,h4{ font-family:'Cairo', sans-serif; margin:0; color:var(--navy-deep); }
+  p{margin:0 0 1em 0;}
+  a{color:inherit;}
+  ul{margin:0; padding-inline-start:1.3em;}
+  li{margin-bottom:.5em;}
+
+  ::selection{ background: var(--gold-pale); color:var(--navy-deep); }
+
+  /* ===== Decorative frame pattern ===== */
+  .ornament-rule{
+    display:flex; align-items:center; justify-content:center; gap:12px;
+    margin:1.6em 0;
+    color:var(--gold);
+  }
+  .ornament-rule::before, .ornament-rule::after{
+    content:""; height:1px; width:60px; background:linear-gradient(90deg, transparent, var(--gold-light), transparent);
+  }
+  .ornament-rule svg{ width:22px; height:22px; flex-shrink:0; }
+
+  /* ===== Top bar ===== */
+  .topbar{
+    position:sticky; top:0; z-index:40;
+    background:rgba(250,243,230,.9);
+    backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:.75rem 1.25rem;
+  }
+  .topbar__brand{
+    display:flex; align-items:center; gap:.6rem;
+    font-weight:800; color:var(--navy-deep); font-size:.95rem;
+  }
+  .topbar__brand .dot{ width:8px; height:8px; border-radius:50%; background:var(--gold); }
+  .topbar__nav{ display:none; gap:1.4rem; font-size:.92rem; font-weight:600; color:var(--ink-soft); }
+  .topbar__nav a{ text-decoration:none; padding-bottom:4px; border-bottom:2px solid transparent; transition:.2s; }
+  .topbar__nav a:hover, .topbar__nav a.active{ color:var(--navy); border-color:var(--gold); }
+  @media(min-width:900px){ .topbar__nav{ display:flex; } }
+  .toc-btn{
+    display:flex; align-items:center; gap:.5rem;
+    background:var(--navy-deep); color:var(--paper);
+    border:none; border-radius:999px; padding:.55rem 1.1rem;
+    font-family:'Cairo'; font-weight:700; font-size:.85rem;
+    cursor:pointer; box-shadow:var(--shadow);
+  }
+  .toc-btn:hover{ background:var(--navy); }
+
+  /* ===== TOC panel ===== */
+  .toc-overlay{
+    position:fixed; inset:0; background:rgba(19,38,53,.45);
+    opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:60;
+  }
+  .toc-overlay.open{ opacity:1; pointer-events:auto; }
+  .toc-panel{
+    position:fixed; top:0; right:0; height:100%; width:min(340px, 86vw);
+    background:var(--card); z-index:61; box-shadow:-20px 0 40px rgba(0,0,0,.2);
+    transform:translateX(100%); transition:transform .3s ease;
+    padding:1.6rem 1.4rem; overflow-y:auto;
+  }
+  html[dir="rtl"] .toc-panel{ right:auto; left:0; transform:translateX(-100%); }
+  .toc-panel.open{ transform:translateX(0); }
+  .toc-panel h3{
+    font-size:1.05rem; color:var(--gold); margin-bottom:1.2rem;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .toc-panel .close{ background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--ink-soft); }
+  .toc-list{ list-style:none; padding:0; margin:0; }
+  .toc-list > li{ margin-bottom:.35rem; }
+  .toc-list a{
+    display:block; text-decoration:none; padding:.5rem .6rem; border-radius:8px;
+    color:var(--ink); font-weight:700; font-size:.92rem; transition:.2s;
+  }
+  .toc-list a:hover{ background:var(--paper-alt); }
+  .toc-list .sub{ list-style:none; padding-inline-start:1.1rem; margin:.15rem 0 .6rem; border-inline-start:2px solid var(--line); }
+  .toc-list .sub a{ font-weight:500; font-size:.83rem; color:var(--ink-soft); padding:.32rem .6rem; }
+
+  /* ===== Cover ===== */
+  .cover{
+    position:relative;
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(233,193,115,.14), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(47,110,99,.18), transparent 50%),
+      linear-gradient(160deg, var(--navy-deep), var(--navy) 60%, #24445f);
+    color:var(--paper);
+    text-align:center;
+    overflow:hidden;
+    padding:3rem 1.5rem;
+  }
+  .cover::before{
+    content:""; position:absolute; inset:18px;
+    border:1px solid rgba(231,193,115,.35);
+    border-radius:6px;
+    pointer-events:none;
+  }
+  .cover::after{
+    content:""; position:absolute; inset:26px;
+    border:1px solid rgba(231,193,115,.18);
+    border-radius:4px;
+    pointer-events:none;
+  }
+  .cover__inner{ position:relative; z-index:2; max-width:760px; }
+  .cover__badge{
+    display:inline-flex; align-items:center; gap:.5rem;
+    background:rgba(231,193,115,.12); border:1px solid rgba(231,193,115,.4);
+    color:var(--gold-light); padding:.45rem 1.1rem; border-radius:999px;
+    font-size:.8rem; font-weight:700; letter-spacing:.02em; margin-bottom:2rem;
+  }
+  .cover__title{
+    font-family:'Aref Ruqaa', serif; font-weight:700;
+    font-size:clamp(2.3rem, 6vw, 4.1rem);
+    line-height:1.35; color:#fff;
+    margin-bottom:1.1rem;
+    text-shadow:0 2px 20px rgba(0,0,0,.25);
+  }
+  .cover__subtitle{
+    font-size:clamp(1rem, 2.2vw, 1.3rem);
+    color:var(--gold-light);
+    font-weight:600;
+    max-width:560px; margin:0 auto 2.4rem;
+    line-height:1.8;
+  }
+  .cover__meta{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:.8rem;
+    font-size:.82rem; color:rgba(250,243,230,.75);
+  }
+  .cover__meta span{
+    border:1px solid rgba(250,243,230,.25); border-radius:999px; padding:.4rem .9rem;
+  }
+  .cover__scroll{
+    position:absolute; bottom:28px; left:50%; transform:translateX(-50%);
+    color:rgba(250,243,230,.6); font-size:.78rem; display:flex; flex-direction:column;
+    align-items:center; gap:.4rem;
+  }
+  .cover__scroll .arrow{ width:16px; height:16px; border-left:2px solid currentColor; border-bottom:2px solid currentColor; transform:rotate(-45deg); animation:bob 1.8s ease-in-out infinite; }
+  @keyframes bob{ 0%,100%{ transform:translateY(0) rotate(-45deg);} 50%{ transform:translateY(6px) rotate(-45deg);} }
+
+  /* ===== Main container ===== */
+  main{ max-width:820px; margin:0 auto; padding:0 1.4rem; }
+  .reveal{ opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ===== Intro ===== */
+  .intro{ padding:5rem 0 3rem; text-align:center; }
+  .intro__eyebrow{ color:var(--gold); font-weight:800; letter-spacing:.08em; font-size:.85rem; margin-bottom:.8rem; }
+  .intro__title{ font-size:clamp(1.5rem,3.4vw,2.1rem); margin-bottom:1.3rem; }
+  .intro__text{ font-size:1.05rem; color:var(--ink-soft); max-width:640px; margin:0 auto; line-height:2; }
+
+  /* ===== TOC index (in-page, on intro) ===== */
+  .index-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:1rem; margin:3rem 0;
+  }
+  .index-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:1.3rem 1.4rem; text-decoration:none; color:var(--ink);
+    box-shadow:var(--shadow); transition:transform .2s ease, border-color .2s ease;
+    display:block;
+  }
+  .index-card:hover{ transform:translateY(-4px); border-color:var(--gold); }
+  .index-card .num{ font-family:'Aref Ruqaa'; color:var(--gold); font-size:1.6rem; }
+  .index-card .title{ font-weight:800; margin-top:.3rem; font-size:1rem; }
+  .index-card .desc{ color:var(--ink-soft); font-size:.85rem; margin-top:.35rem; }
+
+  /* ===== Section headers ===== */
+  .section{ padding:4.5rem 0; border-top:1px solid var(--line); }
+  .section:first-of-type{ border-top:none; }
+  .section__eyebrow{
+    display:inline-block; font-size:.8rem; font-weight:800; color:var(--gold);
+    background:var(--gold-pale); padding:.35rem .9rem; border-radius:999px; margin-bottom:1rem;
+    letter-spacing:.03em;
+  }
+  .section__title{ font-size:clamp(1.6rem,4vw,2.3rem); margin-bottom:.6rem; }
+  .section__lead{ color:var(--ink-soft); font-size:1.02rem; max-width:640px; }
+
+  .goal-box{
+    background:var(--navy-deep); color:var(--paper); border-radius:var(--radius);
+    padding:1.6rem 1.8rem; margin:2rem 0; box-shadow:var(--shadow);
+  }
+  .goal-box h4{ color:var(--gold-light); font-size:1rem; margin-bottom:.7rem; }
+  .goal-box ul{ padding-inline-start:1.2em; margin:0; }
+  .goal-box li{ color:rgba(250,243,230,.92); margin-bottom:.4rem; }
+
+  /* Tools table */
+  .tools-table{ width:100%; border-collapse:collapse; margin:1.8rem 0; font-size:.92rem; }
+  .tools-table th{
+    background:var(--navy-deep); color:var(--gold-light); text-align:start;
+    padding:.7rem 1rem; font-weight:700;
+  }
+  .tools-table th:first-child{ border-radius:10px 0 0 0; }
+  html[dir="rtl"] .tools-table th:first-child{ border-radius:0 10px 0 0; }
+  html[dir="rtl"] .tools-table th:last-child{ border-radius:10px 0 0 0; }
+  .tools-table td{ padding:.75rem 1rem; border-bottom:1px solid var(--line); background:var(--card); }
+  .tools-table tr:last-child td{ border-bottom:none; }
+  .tools-table td:first-child{ font-weight:800; color:var(--navy); white-space:nowrap; }
+
+  /* Numbered items */
+  .item{ margin:2.6rem 0; }
+  .item__head{ display:flex; align-items:center; gap:.9rem; margin-bottom:.9rem; }
+  .item__num{
+    flex-shrink:0; width:42px; height:42px; border-radius:50%;
+    background:var(--gold-pale); color:var(--gold); border:1.5px solid var(--gold-light);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Aref Ruqaa'; font-size:1.25rem; font-weight:700;
+  }
+  .item__title{ font-size:1.15rem; font-weight:800; color:var(--navy-deep); }
+  .item__hint{ color:var(--ink-soft); font-size:.92rem; margin-bottom:1rem; }
+
+  /* Prompt cards */
+  .prompt-pair{
+    display:grid; grid-template-columns:1fr; gap:1rem; margin:1rem 0;
+  }
+  @media(min-width:760px){ .prompt-pair{ grid-template-columns:1fr 1fr; } }
+  .prompt-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    overflow:hidden; box-shadow:var(--shadow);
+  }
+  .prompt-card__bar{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--navy-deep); color:var(--gold-light);
+    padding:.55rem .9rem; font-size:.8rem; font-weight:700;
+  }
+  .prompt-card__bar .lbl{ display:flex; align-items:center; gap:.4rem; }
+  .prompt-card__bar svg{ width:14px; height:14px; }
+  .copy-btn{
+    background:rgba(231,193,115,.15); border:1px solid rgba(231,193,115,.4);
+    color:var(--gold-light); border-radius:6px; padding:.25rem .6rem;
+    font-size:.72rem; font-family:'Cairo'; font-weight:700; cursor:pointer;
+    transition:.2s;
+  }
+  .copy-btn:hover{ background:rgba(231,193,115,.28); }
+  .copy-btn.copied{ background:var(--teal); border-color:var(--teal); color:#fff; }
+  .prompt-card__body{
+    padding:1rem 1.1rem; font-family:'IBM Plex Mono', monospace; font-size:.84rem;
+    white-space:pre-wrap; color:var(--ink); line-height:1.85;
+  }
+  .prompt-card--en .prompt-card__body{ direction:ltr; text-align:left; }
+  .prompt-card--ar .prompt-card__body{ direction:rtl; text-align:right; }
+
+  /* Callouts */
+  .callout{
+    border-radius:var(--radius); padding:1.2rem 1.4rem; margin:1.8rem 0;
+    display:flex; gap:.9rem; align-items:flex-start;
+    border-inline-start:4px solid;
+  }
+  .callout svg{ width:22px; height:22px; flex-shrink:0; margin-top:.15rem; }
+  .callout__title{ font-weight:800; margin-bottom:.3rem; font-size:.95rem; }
+  .callout__text{ font-size:.92rem; color:var(--ink-soft); margin:0; }
+  .callout--tip{ background:var(--gold-pale); border-color:var(--gold); }
+  .callout--tip .callout__title{ color:#8C6519; }
+  .callout--tip svg{ color:var(--gold); }
+  .callout--note{ background:var(--teal-pale); border-color:var(--teal); }
+  .callout--note .callout__title{ color:var(--teal); }
+  .callout--note svg{ color:var(--teal); }
+  .callout--warning{ background:var(--coral-pale); border-color:var(--coral); }
+  .callout--warning .callout__title{ color:var(--coral); }
+  .callout--warning svg{ color:var(--coral); }
+
+  /* compare grid */
+  .compare-grid{ display:grid; grid-template-columns:1fr; gap:1rem; margin:1.6rem 0 2rem; }
+  @media(min-width:760px){ .compare-grid{ grid-template-columns:1fr 1fr; } }
+  .compare-card{ border-radius:var(--radius); padding:1.3rem 1.4rem; }
+  .compare-card.weak{ background:var(--coral-pale); border:1px solid #DCB6A4; }
+  .compare-card.strong{ background:var(--teal-pale); border:1px solid #A9CEC4; }
+  .compare-card .tag{ font-weight:800; font-size:.85rem; margin-bottom:.6rem; display:flex; align-items:center; gap:.4rem; }
+  .compare-card.weak .tag{ color:var(--coral); }
+  .compare-card.strong .tag{ color:var(--teal); }
+  .compare-card p{ font-size:.92rem; margin:0; color:var(--ink); }
+
+  /* Storyboard scenes */
+  .scene-strip{
+    display:flex; gap:1rem; overflow-x:auto; padding:.6rem .1rem 1.4rem;
+    scroll-snap-type:x proximity; margin:1.6rem 0 2.2rem;
+  }
+  .scene-strip::-webkit-scrollbar{ height:7px; }
+  .scene-strip::-webkit-scrollbar-thumb{ background:var(--gold-light); border-radius:99px; }
+  .scene-card{
+    flex:0 0 190px; scroll-snap-align:start;
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:1.1rem; box-shadow:var(--shadow);
+  }
+  .scene-card .n{ font-family:'Aref Ruqaa'; font-size:1.5rem; color:var(--gold); }
+  .scene-card .t{ font-weight:800; margin:.4rem 0 .2rem; font-size:.92rem; }
+  .scene-card .d{ font-size:.82rem; color:var(--ink-soft); }
+
+  /* chips */
+  .chip-row{ display:flex; flex-wrap:wrap; gap:.55rem; margin:1.2rem 0 1.6rem; }
+  .chip{
+    display:inline-flex; align-items:center; gap:.4rem;
+    background:var(--card); border:1px solid var(--line); border-radius:999px;
+    padding:.4rem .9rem; font-size:.85rem; font-weight:700; color:var(--navy);
+  }
+  .chip .d{ width:7px; height:7px; border-radius:50%; background:var(--gold); }
+
+  /* tips list section 4 */
+  .tip-grid{ display:grid; grid-template-columns:1fr; gap:1.1rem; margin:2rem 0; }
+  @media(min-width:700px){ .tip-grid{ grid-template-columns:1fr 1fr; } }
+  .tip-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:1.2rem 1.35rem; box-shadow:var(--shadow);
+  }
+  .tip-card__num{ font-family:'Aref Ruqaa'; color:var(--gold); font-size:1.35rem; margin-bottom:.35rem; display:block; }
+  .tip-card h4{ font-size:1rem; margin-bottom:.4rem; }
+  .tip-card p{ font-size:.9rem; color:var(--ink-soft); margin:0; }
+
+  /* closing */
+  .closing{
+    background:linear-gradient(160deg, var(--navy-deep), var(--navy));
+    color:var(--paper); border-radius:20px; padding:3rem 2rem; text-align:center; margin:3rem 0;
+    position:relative; overflow:hidden;
+  }
+  .closing::before{ content:"“"; position:absolute; top:-10px; right:20px; font-size:8rem; color:rgba(231,193,115,.15); font-family:Georgia, serif; }
+  .closing p{ position:relative; z-index:1; font-size:1.15rem; line-height:2.1; color:#fff; max-width:640px; margin:0 auto; }
+  .closing .sign{ color:var(--gold-light); font-weight:800; margin-top:1.2rem; font-size:.9rem; }
+
+  footer.site-footer{
+    text-align:center; padding:3rem 1rem 4rem; color:var(--ink-faint); font-size:.82rem;
+  }
+
+  hr.divider{ border:none; border-top:1px dashed var(--line); margin:2.4rem 0; }
+</style>
+</head>
+<body>
+
+<!-- ===== Top bar ===== -->
+<div class="topbar">
+  <div class="topbar__brand"><span class="dot"></span> الذكاء الاصطناعي لخدام مدارس الأحد</div>
+  <nav class="topbar__nav">
+    <a href="#intro">المقدمة</a>
+    <a href="#sec1">القسم الأول</a>
+    <a href="#sec2">القسم الثاني</a>
+    <a href="#sec3">القسم الثالث</a>
+    <a href="#sec4">القسم الرابع</a>
+  </nav>
+  <button class="toc-btn" id="tocOpenBtn">
+    ☰ فهرس المحتويات
+  </button>
+</div>
+
+<!-- ===== TOC panel ===== -->
+<div class="toc-overlay" id="tocOverlay"></div>
+<aside class="toc-panel" id="tocPanel">
+  <h3>فهرس المحتويات <button class="close" id="tocCloseBtn">✕</button></h3>
+  <ul class="toc-list">
+    <li><a href="#cover">غلاف الدليل</a></li>
+    <li><a href="#intro">المقدمة</a></li>
+    <li><a href="#sec1">القسم الأول: تحضير محتوى الدرس</a>
+      <ul class="sub">
+        <li><a href="#s1-1">١. استخراج الفكرة الرئيسية</a></li>
+        <li><a href="#s1-2">٢. بناء خطة الدرس كاملة</a></li>
+        <li><a href="#s1-3">٣. تبسيط اللغة حسب السن</a></li>
+        <li><a href="#s1-4">٤. أمثلة من الحياة اليومية</a></li>
+        <li><a href="#s1-5">٥. توقع أسئلة الأطفال</a></li>
+        <li><a href="#s1-6">٦. شرح آية الحفظ</a></li>
+        <li><a href="#s1-7">٧. تلخيص مراجع الخدمة</a></li>
+        <li><a href="#s1-8">٨. تجهيز الاجتماع بالكامل</a></li>
+      </ul>
+    </li>
+    <li><a href="#sec2">القسم الثاني: القصة المرئية والفيديو</a></li>
+    <li><a href="#sec3">القسم الثالث: الأنشطة وأوراق العمل</a>
+      <ul class="sub">
+        <li><a href="#s3-1">١. ابتكار الأنشطة</a></li>
+        <li><a href="#s3-2">٢. تصميم ورقة نشاط</a></li>
+        <li><a href="#s3-3">٣. مسابقة مراجعة</a></li>
+      </ul>
+    </li>
+    <li><a href="#sec4">القسم الرابع: أفضل الممارسات</a></li>
+  </ul>
+</aside>
+
+<!-- ===== Cover ===== -->
+<section class="cover" id="cover">
+  <div class="cover__inner">
+    <span class="cover__badge">📖 دليل تدريبي لخدام مدارس الأحد</span>
+    <h1 class="cover__title">الذكاء الاصطناعي<br>في خدمة مدارس الأحد</h1>
+    <p class="cover__subtitle">دليل عملي لتحضير دروس إبداعية في وقت أقل<br>باستخدام أدوات مجانية</p>
+    <div class="ornament-rule" style="color:var(--gold-light)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2v20M4 8l8-6 8 6M4 16l8 6 8-6"/></svg>
+    </div>
+    <div class="cover__meta">
+      <span>محتوى عملي وبرومبتات جاهزة</span>
+      <span>عربي وإنجليزي</span>
+      <span>أدوات مجانية</span>
+    </div>
+  </div>
+  <div class="cover__scroll">انتقل للأسفل<span class="arrow"></span></div>
+</section>
+
+<main>
+
+  <!-- ===== Introduction ===== -->
+  <section class="section intro reveal" id="intro">
+    <div class="intro__eyebrow">مقدمة الدليل</div>
+    <h2 class="intro__title">الذكاء الاصطناعي مساعد... وليس بديلًا عنك</h2>
+    <p class="intro__text">
+      يهدف هذا الدليل إلى مساعدة خادم مدارس الأحد على استخدام أدوات الذكاء الاصطناعي المجانية لتحضير دروس إبداعية في وقت أقل.
+      الذكاء الاصطناعي هنا هو أداة مساعدة توفّر الوقت والجهد في التحضير، لكنها لا تُغني أبدًا عن دور الخادم الأساسي:
+      فمراجعة المحتوى، والتأكد من دقته العقائدية، والاستعداد الروحي، تظل مسؤولية الخادم نفسه في كل خطوة.
+    </p>
+
+    <div class="index-grid">
+      <a class="index-card" href="#sec1">
+        <div class="num">١</div>
+        <div class="title">تحضير محتوى الدرس</div>
+        <div class="desc">برومبتات لاستخراج الفكرة، بناء خطة الدرس، وتبسيط اللغة حسب السن</div>
+      </a>
+      <a class="index-card" href="#sec2">
+        <div class="num">٢</div>
+        <div class="title">القصة المرئية والفيديو</div>
+        <div class="desc">تحويل الدرس إلى Storyboard وصور وفيديو قصير</div>
+      </a>
+      <a class="index-card" href="#sec3">
+        <div class="num">٣</div>
+        <div class="title">الأنشطة وأوراق العمل</div>
+        <div class="desc">أنشطة تفاعلية، Worksheets، ومسابقات مراجعة</div>
+      </a>
+      <a class="index-card" href="#sec4">
+        <div class="num">٤</div>
+        <div class="title">أفضل الممارسات</div>
+        <div class="desc">عشر نصائح لاستخدام آمن ومسؤول للذكاء الاصطناعي في الخدمة</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 1 ===== -->
+  <section class="section reveal" id="sec1">
+    <span class="section__eyebrow">القسم الأول</span>
+    <h2 class="section__title">تحضير محتوى الدرس باستخدام الذكاء الاصطناعي</h2>
+    <p class="section__lead">الجزء الأول: تحضير محتوى الدرس</p>
+
+    <table class="tools-table">
+      <tr><th>الأداة</th><th>الاستخدام الأفضل</th></tr>
+      <tr><td>ChatGPT</td><td>أفضل اختيار</td></tr>
+      <tr><td>Gemini</td><td>ممتاز في البحث وتجميع المعلومات</td></tr>
+    </table>
+
+    <!-- Item 1 -->
+    <div class="item" id="s1-1">
+      <div class="item__head"><span class="item__num">١</span><span class="item__title">استخراج الفكرة الرئيسية للدرس</span></div>
+      <p class="item__hint">بدل ما الخادم يحتار "أركز على إيه؟" — يطلب من الـAI:</p>
+      <div class="prompt-pair">
+        <div class="prompt-card prompt-card--ar">
+          <div class="prompt-card__bar"><span class="lbl">🗣️ برومبت عربي</span><button class="copy-btn" data-copy="p1-ar">نسخ</button></div>
+          <div class="prompt-card__body" id="p1-ar">أنت خادم في مدارس الأحد.
+
+ساعدني في تحضير درس عن (اكتب اسم القصة أو الموضوع).
+
+أعطني:
+• الفكرة الرئيسية للدرس.
+• الرسالة الروحية الأساسية.
+• أهم 3 قيم أريد أن تصل للأطفال.
+• آية مناسبة للحفظ.
+• تطبيق عملي يناسب الأطفال.</div>
+        </div>
+        <div class="prompt-card prompt-card--en">
+          <div class="prompt-card__bar"><span class="lbl">🌐 English Prompt</span><button class="copy-btn" data-copy="p1-en">Copy</button></div>
+          <div class="prompt-card__body" id="p1-en">You are an experienced Sunday School teacher.
+
+Help me prepare a lesson about (Lesson Title).
+
+Please provide:
+• The main lesson objective.
+• The core spiritual message.
+• Three key values children should learn.
+• A memory verse.
+• A practical life application suitable for children.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item 2 -->
+    <div class="item" id="s1-2">
+      <div class="item__head"><span class="item__num">٢</span><span class="item__title">بناء خطة الدرس كاملة</span></div>
+      <p class="item__hint">بدل ما يبدأ من الصفر.</p>
+      <div class="prompt-pair">
+        <div class="prompt-card prompt-card--ar">
+          <div class="prompt-card__bar"><span class="lbl">🗣️ عربي</span><button class="copy-btn" data-copy="p2-ar">نسخ</button></div>
+          <div class="prompt-card__body" id="p2-ar">حضّر لي درس مدارس أحد عن (اسم الدرس).
+
+الفئة العمرية:
+مدة الدرس:
+
+يشمل:
+
+• هدف الدرس
+• مقدمة مشوقة
+• شرح القصة
+• أهم النقاط
+• تطبيق عملي
+• أسئلة للمناقشة
+• آية للحفظ
+• صلاة ختامية</div>
+        </div>
+        <div class="prompt-card prompt-card--en">
+          <div class="prompt-card__bar"><span class="lbl">🌐 English</span><button class="copy-btn" data-copy="p2-en">Copy</button></div>
+          <div class="prompt-card__body" id="p2-en">Create a complete Sunday School lesson about (Lesson).
+
+Age Group:
+Lesson Duration:
+
+Include:
+
+• Lesson objective
+• Icebreaker
+• Story explanation
+• Key teaching points
+• Practical application
+• Discussion questions
+• Memory verse
+• Closing prayer</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item 3 -->
+    <div class="item" id="s1-3">
+      <div class="item__head"><span class="item__num">٣</span><span class="item__title">تبسيط اللغة حسب السن</span></div>
+      <p class="item__hint">دي من أحسن استخدامات الـAI. مثلاً نفس الدرس: مرة لـ KG، ومرة ابتدائي، ومرة إعدادي.</p>
+      <div class="prompt-pair">
+        <div class="prompt-card prompt-card--ar">
+          <div class="prompt-card__bar"><span class="lbl">🗣️ عربي</span><button class="copy-btn" data-copy="p3-ar">نسخ</button></div>
+          <div class="prompt-card__body" id="p3-ar">اشرح هذا الدرس للأطفال من سن 6 إلى 8 سنوات.
+
+استخدم لغة بسيطة جدًا.
+
+تجنب الكلمات الصعبة.
+
+استخدم أمثلة من حياتهم اليومية.</div>
+        </div>
+        <div class="prompt-card prompt-card--en">
+          <div class="prompt-card__bar"><span class="lbl">🌐 English</span><button class="copy-btn" data-copy="p3-en">Copy</button></div>
+          <div class="prompt-card__body" id="p3-en">Rewrite this lesson for children aged 6–8.
+
+Use simple vocabulary.
+
+Avoid difficult theological words.
+
+Use everyday examples children can understand.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item 4 -->
+    <div class="item" id="s1-4">
+      <div class="item__head"><span class="item__num">٤</span><span class="item__title">اقتراح أمثلة من الحياة اليومية</span></div>
+      <p class="item__hint">الأطفال بيفهموا بالأمثلة.</p>
+      <div class="prompt-pair">
+        <div class="prompt-card prompt-card--ar">
+          <div class="prompt-card__bar"><span class="lbl">🗣️ عربي</span><button class="copy-btn" data-copy="p4-ar">نسخ</button></div>
+          <div class="prompt-card__body" id="p4-ar">أعطني 10 أمثلة من الحياة اليومية تساعد الأطفال على فهم هذا الدرس.
+
+يجب أن تكون الأمثلة واقعية ومناسبة للأطفال.</div>
+        </div>
+        <div class="prompt-card prompt-card--en">
+          <div class="prompt-card__bar"><span class="lbl">🌐 English</span><button class="copy-btn" data-copy="p4-en">Copy</button></div>
+          <div class="prompt-card__body" id="p4-en">Give me 10 real-life examples that help children understand this lesson.
+
+The examples should be practical and age appropriate.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item 5 -->
+    <div class="item" id="s1-5">
+      <div class="item__head"><span class="item__num">٥</span><span class="item__title">توقع أسئلة الأطفال</span></div>
+      <p class="item__hint">ودي حركة جميلة جدًا في السيشن.</p>
+      <div class="prompt-pair">
+        <div class="prompt-card prompt-card--ar">
+          <div class="prompt-card__bar"><span class="lbl">🗣️ عربي</span><button class="copy-btn" data-copy="p5-ar">نسخ</button></div>
+          <div class="prompt-card__body" id="p5-ar">لو كنت طفلًا في المرحلة الابتدائية وسمعت هذا الدرس،
+
+ما أكثر 15 سؤالًا قد تسألها؟
+
+وأعطني إجابات بسيطة ومناسبة للأطفال.</div>
+        </div>
+        <div class="prompt-card prompt-card--en">
+          <div class="prompt-card__bar"><span class="lbl">🌐 English</span><button class="copy-btn" data-copy="p5-en">Copy</button></div>
+          <div class="prompt-card__body" id="p5-en">Imagine you are a primary school child listening to this lesson.
+
+What are the 15 most likely questions you would ask?
+
+Provide simple child-friendly answers.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item 6 -->
+    <div class="item" id="s1-6">
+      <div class="item__head"><span class="item__num">٦</span><span class="item__title">شرح آية الحفظ</span></div>
+      <div class="prompt-pair">
+        <div class="prompt-card prompt-card--ar">
+          <div class="prompt-card__bar"><span class="lbl">🗣️ عربي</span><button class="copy-btn" data-copy="p6-ar">نسخ</button></div>
+          <div class="prompt-card__body" id="p6-ar">اشرح آية الحفظ للأطفال.
+
+اجعل الشرح بسيطًا.
+
+وأعطني مثالًا عمليًا يساعدهم على فهمها.</div>
+        </div>
+        <div class="prompt-card prompt-card--en">
+          <div class="prompt-card__bar"><span class="lbl">🌐 English</span><button class="copy-btn" data-copy="p6-en">Copy</button></div>
+          <div class="prompt-card__body" id="p6-en">Explain the memory verse for children.
+
+Use very simple language.
+
+Include one practical example they can relate to.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item 7 -->
+    <div class="item" id="s1-7">
+      <div class="item__head"><span class="item__num">٧</span><span class="item__title">تلخيص مراجع الخدمة</span></div>
+      <p class="item__hint">الخادم عنده كتاب PDF مثلاً، يرفعه، ثم:</p>
+      <div class="prompt-pair">
+        <div class="prompt-card prompt-card--ar">
+          <div class="prompt-card__bar"><span class="lbl">🗣️ عربي</span><button class="copy-btn" data-copy="p7-ar">نسخ</button></div>
+          <div class="prompt-card__body" id="p7-ar">لخص هذا الملف.
+
+استخرج أهم الأفكار.
+
+واكتبها في نقاط.
+
+ثم حولها إلى درس مدارس أحد.</div>
+        </div>
+        <div class="prompt-card prompt-card--en">
+          <div class="prompt-card__bar"><span class="lbl">🌐 English</span><button class="copy-btn" data-copy="p7-en">Copy</button></div>
+          <div class="prompt-card__body" id="p7-en">Summarize this document.
+
+Extract the key ideas.
+
+Then convert them into a Sunday School lesson outline.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item 8 -->
+    <div class="item" id="s1-8">
+      <div class="item__head"><span class="item__num">٨</span><span class="item__title">تجهيز الاجتماع بالكامل</span></div>
+      <div class="prompt-pair">
+        <div class="prompt-card prompt-card--ar">
+          <div class="prompt-card__bar"><span class="lbl">🗣️ عربي</span><button class="copy-btn" data-copy="p8-ar">نسخ</button></div>
+          <div class="prompt-card__body" id="p8-ar">أنت خادم مدارس أحد ذو خبرة.
+
+ساعدني في إعداد اجتماع كامل عن (اسم الدرس).
+
+الفئة العمرية:
+مدة الاجتماع:
+
+أريد:
+
+• هدف الاجتماع
+• كاسر جليد
+• مقدمة
+• شرح القصة
+• تطبيق عملي
+• نشاط
+• لعبة
+• أسئلة
+• آية للحفظ
+• صلاة ختامية
+
+اعرض النتيجة في شكل منظم.</div>
+        </div>
+        <div class="prompt-card prompt-card--en">
+          <div class="prompt-card__bar"><span class="lbl">🌐 English</span><button class="copy-btn" data-copy="p8-en">Copy</button></div>
+          <div class="prompt-card__body" id="p8-en">You are an experienced Sunday School teacher.
+
+Help me prepare a complete Sunday School meeting about (Lesson Title).
+
+Age Group:
+Meeting Duration:
+
+Include:
+
+• Meeting objective
+• Icebreaker
+• Introduction
+• Story explanation
+• Practical application
+• Activity
+• Game
+• Discussion questions
+• Memory verse
+• Closing prayer
+
+Organize everything clearly with headings.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout--tip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a6 6 0 00-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0012 2z"/></svg>
+      <div>
+        <div class="callout__title">نصيحة مهمة للخدام</div>
+        <p class="callout__text">بعد ما تعرضوا كل البرومبتات، قولوا: "السر مش في اسم الأداة... السر في طريقة السؤال."</p>
+      </div>
+    </div>
+
+    <h3 style="font-size:1.05rem; margin:2rem 0 .8rem;">مقارنة مباشرة: برومبت ضعيف مقابل برومبت احترافي</h3>
+    <div class="compare-grid">
+      <div class="compare-card weak">
+        <div class="tag">❌ برومبت ضعيف</div>
+        <p>حضرلي درس عن السامري الصالح.</p>
+      </div>
+      <div class="compare-card strong">
+        <div class="tag">✅ برومبت احترافي</div>
+        <p>أنت خادم مدارس أحد لديه خبرة 15 سنة. حضر درسًا عن السامري الصالح للأطفال من 9 إلى 11 سنة، مدة الدرس 35 دقيقة، مع مراعاة تعاليم الكنيسة. أريد هدفًا واضحًا، مقدمة مشوقة، شرحًا مبسطًا، أمثلة من حياة الأطفال، تطبيقًا عمليًا، أسئلة للمناقشة، آية للحفظ، ونشاطًا تفاعليًا في النهاية.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 2 ===== -->
+  <section class="section reveal" id="sec2">
+    <span class="section__eyebrow">القسم الثاني</span>
+    <h2 class="section__title">تحويل الدرس إلى قصة مرئية وفيديو بالذكاء الاصطناعي</h2>
+
+    <div class="goal-box">
+      <h4>الهدف</h4>
+      <p style="color:rgba(250,243,230,.85); margin-bottom:.6rem;">في نهاية هذا القسم سيتمكن الخادم من تحويل درس مدارس الأحد إلى:</p>
+      <ul>
+        <li>قصة سينمائية بسيطة.</li>
+        <li>Storyboard.</li>
+        <li>مجموعة صور متناسقة.</li>
+        <li>فيديو كرتوني قصير.</li>
+        <li>فيديو يصلح للعرض أثناء الدرس.</li>
+      </ul>
+    </div>
+
+    <table class="tools-table">
+      <tr><th>الغرض</th><th>الأدوات</th></tr>
+      <tr><td>كتابة القصة</td><td>ChatGPT، Gemini</td></tr>
+      <tr><td>توليد الصور</td><td>Meta AI، Google Flow، LMArena (لاختيار أفضل نموذج أو مقارنة النتائج)</td></tr>
+      <tr><td>تحويل الصور لفيديو</td><td>Google Flow، Meta AI (عند توفر ميزات الفيديو)</td></tr>
+      <tr><td>أدوات أخرى</td><td>أدوات فيديو إضافية حسب الحاجة لاحقًا</td></tr>
+    </table>
+
+    <h3 style="font-size:1.1rem; margin:2.2rem 0 .5rem;">الخطوة الأولى: تحويل الدرس إلى Storyboard</h3>
+    <p class="item__hint">بدل ما نقول "اعمل فيديو" مباشرة، لازم أولًا نقسم القصة إلى مشاهد. مثال على درس السامري الصالح:</p>
+
+    <div class="scene-strip">
+      <div class="scene-card"><div class="n">١</div><div class="t">المشهد الأول</div><div class="d">الرجل يسير في الطريق.</div></div>
+      <div class="scene-card"><div class="n">٢</div><div class="t">المشهد الثاني</div><div class="d">اللصوص يهاجمونه.</div></div>
+      <div class="scene-card"><div class="n">٣</div><div class="t">المشهد الثالث</div><div class="d">الكاهن يمر.</div></div>
+      <div class="scene-card"><div class="n">٤</div><div class="t">المشهد الرابع</div><div class="d">اللاوي يمر.</div></div>
+      <div class="scene-card"><div class="n">٥</div><div class="t">المشهد الخامس</div><div class="d">السامري يساعده.</div></div>
+      <div class="scene-card"><div class="n">٦</div><div class="t">المشهد السادس</div><div class="d">الوصول إلى الفندق.</div></div>
+    </div>
+    <p class="item__hint">يعني الـAI هنا يعمل الـStoryboard كاملًا بالبرومبت التالي:</p>
+
+    <div class="prompt-pair">
+      <div class="prompt-card prompt-card--ar">
+        <div class="prompt-card__bar"><span class="lbl">🗣️ برومبت عربي</span><button class="copy-btn" data-copy="p9-ar">نسخ</button></div>
+        <div class="prompt-card__body" id="p9-ar">أنت كاتب قصص أطفال ومخرج أفلام تعليمية.
+
+حوّل درس مدارس الأحد التالي إلى Storyboard لفيديو.
+
+اسم الدرس:
+(اسم الدرس)
+
+الفئة العمرية:
+(العمر)
+
+قسّم القصة إلى مشاهد قصيرة.
+
+لكل مشهد اكتب:
+
+• رقم المشهد
+• وصف المشهد
+• الشخصيات الموجودة
+• المكان
+• ما الذي يحدث
+• التعليق الصوتي المقترح
+• مدة المشهد
+
+اجعل كل مشهد واضحًا ويسهل تحويله إلى صورة أو فيديو.</div>
+      </div>
+      <div class="prompt-card prompt-card--en">
+        <div class="prompt-card__bar"><span class="lbl">🌐 English Prompt</span><button class="copy-btn" data-copy="p9-en">Copy</button></div>
+        <div class="prompt-card__body" id="p9-en">You are a children's storyteller and storyboard artist.
+
+Convert the following Sunday School lesson into a storyboard for an educational video.
+
+Lesson:
+(Lesson Title)
+
+Age Group:
+(Age)
+
+Divide the story into short scenes.
+
+For each scene provide:
+
+• Scene number
+• Scene description
+• Characters
+• Location
+• Action
+• Suggested narration
+• Estimated duration
+
+Keep every scene simple and easy to convert into AI-generated images or videos.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 3 ===== -->
+  <section class="section reveal" id="sec3">
+    <span class="section__eyebrow">القسم الثالث</span>
+    <h2 class="section__title">تصميم الأنشطة وأوراق العمل باستخدام الذكاء الاصطناعي</h2>
+
+    <div class="goal-box">
+      <h4>الهدف</h4>
+      <p style="color:rgba(250,243,230,.9); margin:0;">في نهاية هذا القسم سيتمكن الخادم من تحويل أي درس إلى أنشطة تفاعلية وأوراق عمل جاهزة للطباعة تناسب الفئة العمرية المستهدفة.</p>
+    </div>
+
+    <div class="chip-row">
+      <span class="chip"><span class="d"></span> ChatGPT أو Gemini — توليد الأفكار والمحتوى</span>
+      <span class="chip"><span class="d"></span> Canva — تصميم ورقة النشاط</span>
+      <span class="chip"><span class="d"></span> Google Flow / ChatGPT — تحويل الأفكار إلى صور جاهزة</span>
+    </div>
+
+    <!-- item 1 -->
+    <div class="item" id="s3-1">
+      <div class="item__head"><span class="item__num">١</span><span class="item__title">ابتكار أنشطة مرتبطة بالدرس</span></div>
+      <div class="prompt-pair">
+        <div class="prompt-card prompt-card--ar">
+          <div class="prompt-card__bar"><span class="lbl">🗣️ برومبت عربي</span><button class="copy-btn" data-copy="p10-ar">نسخ</button></div>
+          <div class="prompt-card__body" id="p10-ar">أنت خادم مدارس أحد متخصص في تصميم الأنشطة التعليمية للأطفال.
+
+سأعطيك موضوع الدرس والفئة العمرية.
+
+أنشئ 15 نشاطًا مختلفًا مرتبطًا بالدرس.
+
+يجب أن تتنوع الأنشطة بين:
+
+• نشاط فردي
+• نشاط جماعي
+• لعبة حركية
+• لعبة تعليمية
+• نشاط فني
+• نشاط يعتمد على التفكير
+• نشاط للمراجعة
+• نشاط يمكن تنفيذه داخل الفصل بإمكانات بسيطة
+
+لكل نشاط اكتب:
+
+• اسم النشاط
+• الهدف
+• الأدوات المطلوبة
+• خطوات التنفيذ
+• الوقت المتوقع
+• نصائح للخادم</div>
+        </div>
+        <div class="prompt-card prompt-card--en">
+          <div class="prompt-card__bar"><span class="lbl">🌐 English Prompt</span><button class="copy-btn" data-copy="p10-en">Copy</button></div>
+          <div class="prompt-card__body" id="p10-en">You are an expert Sunday School activity designer.
+
+Based on the lesson and age group, create 15 different classroom activities.
+
+Include:
+
+• Individual activities
+• Team activities
+• Movement games
+• Educational games
+• Art activities
+• Critical thinking activities
+• Review games
+
+For each activity include:
+
+• Title
+• Objective
+• Materials
+• Instructions
+• Estimated time
+• Teacher tips</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- item 2 -->
+    <div class="item" id="s3-2">
+      <div class="item__head"><span class="item__num">٢</span><span class="item__title">تصميم ورقة نشاط (Worksheet)</span></div>
+      <div class="prompt-pair">
+        <div class="prompt-card prompt-card--ar">
+          <div class="prompt-card__bar"><span class="lbl">🗣️ برومبت عربي</span><button class="copy-btn" data-copy="p11-ar">نسخ</button></div>
+          <div class="prompt-card__body" id="p11-ar">أنشئ Worksheet احترافية للأطفال عن هذا الدرس.
+
+يجب أن تحتوي على:
+
+• عنوان جذاب
+• آية الحفظ
+• وصل بين العناصر
+• أكمل الفراغ
+• صح أو خطأ
+• اختيار من متعدد
+• ترتيب الأحداث
+• متاهة إن أمكن
+• تلوين
+• سؤال تطبيقي
+
+اجعلها مناسبة للطباعة على ورقة A4.</div>
+        </div>
+        <div class="prompt-card prompt-card--en">
+          <div class="prompt-card__bar"><span class="lbl">🌐 English Prompt</span><button class="copy-btn" data-copy="p11-en">Copy</button></div>
+          <div class="prompt-card__body" id="p11-en">Create a printable A4 Sunday School worksheet for children.
+
+Include:
+
+• Attractive title
+• Memory verse
+• Matching exercise
+• Fill in the blanks
+• True or False
+• Multiple choice
+• Sequence the events
+• Maze (if applicable)
+• Coloring section
+• Reflection question
+
+Make the layout clean and child-friendly.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- item 3 -->
+    <div class="item" id="s3-3">
+      <div class="item__head"><span class="item__num">٣</span><span class="item__title">تصميم مسابقة مراجعة</span></div>
+      <div class="prompt-pair">
+        <div class="prompt-card prompt-card--ar">
+          <div class="prompt-card__bar"><span class="lbl">🗣️ برومبت عربي</span><button class="copy-btn" data-copy="p12-ar">نسخ</button></div>
+          <div class="prompt-card__body" id="p12-ar">حوّل هذا الدرس إلى مسابقة تفاعلية.
+
+أنشئ:
+
+• 10 أسئلة اختيار من متعدد
+• 10 صح أو خطأ
+• 10 أكمل
+• 5 أسئلة تفكير
+• سؤال نهائي للتطبيق العملي
+
+رتب الأسئلة من الأسهل إلى الأصعب.</div>
+        </div>
+        <div class="prompt-card prompt-card--en">
+          <div class="prompt-card__bar"><span class="lbl">🌐 English Prompt</span><button class="copy-btn" data-copy="p12-en">Copy</button></div>
+          <div class="prompt-card__body" id="p12-en">Convert this lesson into an interactive quiz.
+
+Create:
+
+• 10 multiple-choice questions
+• 10 true/false questions
+• 10 fill-in-the-blank questions
+• 5 discussion questions
+• 1 real-life application question
+
+Arrange them from easy to difficult.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 4 ===== -->
+  <section class="section reveal" id="sec4">
+    <span class="section__eyebrow">القسم الرابع</span>
+    <h2 class="section__title">أفضل الممارسات والنصائح عند استخدام الذكاء الاصطناعي في الخدمة</h2>
+
+    <div class="callout callout--note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <div>
+        <div class="callout__title">رسالة مهمة</div>
+        <p class="callout__text">الذكاء الاصطناعي مساعد للخادم، وليس بديلًا عن الصلاة أو دراسة الكتاب المقدس أو الخبرة الروحية.</p>
+      </div>
+    </div>
+
+    <h3 style="font-size:1.1rem; margin:2.2rem 0 .3rem;">أهم النصائح</h3>
+    <div class="tip-grid">
+      <div class="tip-card"><span class="tip-card__num">١</span><h4>لا تنسخ وتستخدم مباشرة</h4><p>راجع كل كلمة قبل استخدامها مع الأطفال.</p></div>
+      <div class="tip-card"><span class="tip-card__num">٢</span><h4>راجع الآيات</h4><p>تأكد أن جميع الآيات الكتابية من ترجمة صحيحة ولم يتم نقلها أو تفسيرها بشكل غير دقيق.</p></div>
+      <div class="tip-card"><span class="tip-card__num">٣</span><h4>راجع المحتوى العقائدي</h4><p>قد يقدم الذكاء الاصطناعي معلومات عامة لا تتوافق مع تعليم كنيستك، لذلك راجع دائمًا النقاط العقائدية مع المراجع المعتمدة.</p></div>
+      <div class="tip-card"><span class="tip-card__num">٤</span><h4>خصّص المحتوى</h4><p>لا تستخدم الناتج كما هو. أضف أسلوبك، وأمثلتك، وخبرتك مع الأطفال.</p></div>
+      <div class="tip-card"><span class="tip-card__num">٥</span><h4>اختر الفئة العمرية</h4><p>اطلب دائمًا من الذكاء الاصطناعي كتابة المحتوى حسب عمر الأطفال.</p></div>
+      <div class="tip-card"><span class="tip-card__num">٦</span><h4>لا تجعل الدرس كله شاشة</h4><p>استخدم الفيديو والصور لدعم الشرح، وليس ليحل محل تفاعل الخادم مع الأطفال.</p></div>
+      <div class="tip-card"><span class="tip-card__num">٧</span><h4>حافظ على خصوصية الأطفال</h4><p>لا ترفع صور الأطفال أو بياناتهم الشخصية إلى أدوات الذكاء الاصطناعي دون موافقة واضحة واتباع سياسات الكنيسة.</p></div>
+      <div class="tip-card"><span class="tip-card__num">٨</span><h4>استخدم أكثر من أداة</h4><p>قد يكون ChatGPT أفضل في كتابة المحتوى، بينما Canva أفضل في التصميم، وGoogle Flow أو Meta AI أفضل في إنتاج الصور والفيديو.</p></div>
+      <div class="tip-card"><span class="tip-card__num">٩</span><h4>ابدأ ببرومبت بسيط ثم طوّره</h4><p>النتيجة الأولى ليست دائمًا الأفضل. اطلب من الأداة تحسين المحتوى أو تبسيطه أو إضافة أفكار جديدة.</p></div>
+      <div class="tip-card"><span class="tip-card__num">١٠</span><h4>وفّر الوقت فيما يفيد الخدمة</h4><p>الوقت الذي يوفره الذكاء الاصطناعي استثمره في: الصلاة، دراسة الكتاب المقدس، الافتقاد، التواصل مع الأطفال، وتطوير نفسك كخادم.</p></div>
+    </div>
+
+    <div class="closing">
+      <p>أقوى استخدام للذكاء الاصطناعي في الخدمة ليس أن يقوم بالخدمة بدلًا منك، بل أن ينجز المهام المتكررة بسرعة، ليمنحك وقتًا أكبر لما لا يستطيع أي ذكاء اصطناعي أن يقدمه: المحبة، والاهتمام بالمخدومين، والصلاة، والشهادة الحية للمسيح.</p>
+      <div class="sign">خاتمة القسم الرابع</div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="ornament-rule" style="color:var(--gold)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2v20M4 8l8-6 8 6M4 16l8 6 8-6"/></svg>
+    </div>
+    الذكاء الاصطناعي في خدمة مدارس الأحد — دليل عملي لتحضير دروس إبداعية في وقت أقل
+  </footer>
+
+</main>
+
+<script>
+  // Mobile / global TOC panel
+  const tocPanel = document.getElementById('tocPanel');
+  const tocOverlay = document.getElementById('tocOverlay');
+  document.getElementById('tocOpenBtn').addEventListener('click', () => {
+    tocPanel.classList.add('open'); tocOverlay.classList.add('open');
+  });
+  document.getElementById('tocCloseBtn').addEventListener('click', closeToc);
+  tocOverlay.addEventListener('click', closeToc);
+  function closeToc(){ tocPanel.classList.remove('open'); tocOverlay.classList.remove('open'); }
+  tocPanel.querySelectorAll('a').forEach(a => a.addEventListener('click', closeToc));
+
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const targetId = btn.getAttribute('data-copy');
+      const text = document.getElementById(targetId).innerText;
+      try{
+        await navigator.clipboard.writeText(text);
+      }catch(e){
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+      }
+      const original = btn.textContent;
+      btn.textContent = btn.textContent.includes('Copy') ? 'Copied ✓' : 'تم النسخ ✓';
+      btn.classList.add('copied');
+      setTimeout(()=>{ btn.textContent = original; btn.classList.remove('copied'); }, 1600);
+    });
+  });
+
+  // Reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: .08 });
+  revealEls.forEach(el => io.observe(el));
+
+  // Active link highlight in top nav
+  const navLinks = document.querySelectorAll('.topbar__nav a');
+  const sections = ['intro','sec1','sec2','sec3','sec4'].map(id => document.getElementById(id));
+  const spy = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        navLinks.forEach(l=>l.classList.remove('active'));
+        const match = document.querySelector(`.topbar__nav a[href="#${entry.target.id}"]`);
+        if(match) match.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -50% 0px' });
+  sections.forEach(s => s && spy.observe(s));
+</script>
+
+</body>
+</html>
